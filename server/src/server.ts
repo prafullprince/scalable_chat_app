@@ -4,8 +4,13 @@ import dotenv from "dotenv";
 import { WebSocketServer } from "ws";
 import { connectDB } from "./config/mongoDB";
 dotenv.config();
-
+import jwt from "jsonwebtoken";
 import authRoutes from "./routes/index";
+import { RedisManager } from "./managers/redis.manager";
+import { SocketManager } from "./managers/socket.manager";
+import { IUserPayload } from "./types/http";
+import { RoomManager } from "./managers/room.manager";
+import { publishMessage } from "./redis/publisher";
 
 // initialize an express app
 const app = express();
@@ -17,27 +22,105 @@ app.use(express.json());
 // create a http server instance
 const server = http.createServer(app);
 
-// db connection
-connectDB();
-
 // create a websocket server instance
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ noServer: true });
+
+// upgrade socket
+server.on("upgrade", (request, socket, head) => {
+  const url = new URL(request.url!, `http://${request.headers.host}`);
+
+  const token = url.searchParams.get("token");
+
+  if (!token) {
+    socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+    socket.destroy();
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.secret!);
+    if (typeof decoded === "string" || !("id" in decoded)) {
+      socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+      socket.destroy();
+      return;
+    }
+    request.user = decoded as IUserPayload;
+
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
+    });
+  } catch {
+    socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+    socket.destroy();
+  }
+});
 
 // websocket connection
-wss.on("connection", (socket)=>{
-    console.log("Client Connected");
-    socket.send("Hello from server");
+wss.on("connection", (socket, request) => {
+  console.log(request.user);
+  if (!request.user) {
+    // handle unauthenticated case
+    return socket.send("Please Authenticate First");
+  }
+  console.log("Client Connected");
+
+  // add sockets
+  SocketManager.getInstance().addSocket(request.user?.id, socket);
+
+  // message
+  socket.on("message", async (msg) => {
+    let data;
+    try {
+      data = JSON.parse(msg.toString());
+    } catch (err) {
+      console.error("Invalid JSON received:", msg.toString());
+      socket.send(
+        JSON.stringify({ type: "error", message: "Invalid JSON format" }),
+      );
+      return;
+    }
+
+    // join room
+    if (data.type === "join_chat") {
+      await RoomManager.getInstance().joinChat(
+        data.fromUserId,
+        data.toUserId,
+        data.chatType,
+        socket,
+      );
+    }
+
+    // leave room
+    if (data.type === "leave_chat") {
+    }
+
+    // incoming message
+    if(data.type === "chat") {
+        console.log("chat mess: ", data);
+        await publishMessage(`chat:${data.chatId}`, data);
+        console.log("published");
+    }
+  });
 });
 
 // default routes
-app.get("/",(req: Request, res: Response)=>{
-    res.send("Hello from express server");
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello from express server");
 });
 
 // routes
 app.use("/api/v1", authRoutes);
 
-// run server
-server.listen(PORT, ()=>{
+// bootstrap: connect to DB + Redis, then start listening
+async function bootstrap() {
+  await connectDB();
+  await RedisManager.getInstance().connect();
+  server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+  });
+}
+
+bootstrap().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });
