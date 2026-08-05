@@ -11,6 +11,8 @@ import { SocketManager } from "./managers/socket.manager";
 import { IUserPayload } from "./types/http";
 import { RoomManager } from "./managers/room.manager";
 import { publishMessage } from "./redis/publisher";
+import { addToQueue } from "./redis/add_to_queue";
+import { startWorker } from "./worker/worker.message";
 
 // initialize an express app
 const app = express();
@@ -99,6 +101,7 @@ wss.on("connection", (socket, request) => {
         console.log("chat mess: ", data);
         await publishMessage(`chat:${data.chatId}`, data);
         console.log("published");
+        await addToQueue(data);
     }
   });
 });

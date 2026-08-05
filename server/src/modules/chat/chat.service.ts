@@ -1,6 +1,8 @@
 import { WebSocket } from "ws";
 import { ChatRepository } from "./chat.repository";
-import { ChatType } from "../../models";
+import { ChatType, Message } from "../../models";
+import { ChatMessage } from "../../redis/types";
+import { ApiError } from "../../utils/apiError.utils";
 
 export class ChatService {
     private repo = new ChatRepository();
@@ -27,5 +29,19 @@ export class ChatService {
             }
             return chat._id;
         }
+    }
+
+    // --------add msg in db from queue--------
+    async addMsgInDb(data: ChatMessage) {
+        const { message, chatId, sender, receiver, messageType, chatType } = data;
+
+        // check is chat exists
+        const isChat = await this.repo.isChatExists(sender, receiver, chatType);
+        if(!isChat) {
+            return;
+        }
+
+        // save msg in db & update chat
+        await this.repo.saveMsgInDb(chatId, sender, message);
     }
 }
