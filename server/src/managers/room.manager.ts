@@ -1,9 +1,6 @@
 import { WebSocket } from "ws";
-import { ChatService } from "../modules/chat/chat.service";
-import { startSubscriber } from "../redis/subscriber";
 import { ChatMessage } from "../redis/types";
-
-const chatService = new ChatService();
+import { SubscriptionManager } from "./subscription.manager";
 
 export class RoomManager {
   // chat -> socket1,socket2,socket3
@@ -23,56 +20,56 @@ export class RoomManager {
     return RoomManager.instance;
   }
 
-  // join_room
-  async joinChat(fromUserId: string, toUserId:string, chatType:string, socket: WebSocket, groupName?: string, groupDescription?: string) {
-    // create chat in db and return chatId
-    const chatId = await chatService.join_chat(fromUserId, toUserId, chatType, socket, groupName, groupDescription);
-    if(!chatId) {
-      return socket.send("Join chat has no chatid")
+  // join_chat
+  async join_chat(chatId: string, socket: WebSocket) {
+    // check isRoom Exists
+    const clients = this.chatRooms.get(chatId);
+
+    // no one is connected in this room // create room
+    if (!clients) {
+      this.chatRooms.set(chatId, new Set());
+
+      // now subscribe to this chatRoom only first local user only
+      await SubscriptionManager.getInstance().subscribeChatRoom(chatId);
     }
 
-    // check is this user exists in chatRoom
-    if(!this.chatRooms.has(chatId.toString())) {
-      // add chat
-      this.chatRooms.set(chatId.toString(), new Set());
-      // subscribe to room of first local socket
-      await startSubscriber(`chat:${chatId}`);
-    }
+    // add socket in chatRoom
+    this.chatRooms.get(chatId)?.add(socket);
 
-    // add socket in that chat
-    this.chatRooms.get(chatId.toString())?.add(socket);
+    // chatId in socketRoom
+    this.socketRoom.set(socket, chatId);
 
-    // add chatId in socketRoom
-    this.socketRoom.set(socket, chatId.toString());
-
-    // send success
-    socket.send("Chat added in room");
-    console.log("chatRooms: ", this.chatRooms);
-    console.log("socketRooms: ", this.socketRoom);
+    // return
+    socket.send(
+      JSON.stringify({
+        type: "join_chat",
+        message: "Client added in chat",
+      }),
+    );
   }
 
   // leave_room
-  leaveChat(socket: WebSocket) {
-    // is this socket is in any room
-    const chatId = this.socketRoom.get(socket);
-    if(!chatId) {
-        return;
-    }
+  // leaveChat(socket: WebSocket) {
+  //   // is this socket is in any room
+  //   const chatId = this.socketRoom.get(socket);
+  //   if(!chatId) {
+  //       return;
+  //   }
 
-    // fetch sockets of this room
-    const clients = this.chatRooms.get(chatId)
-    if(clients) {
-        clients.delete(socket);
+  //   // fetch sockets of this room
+  //   const clients = this.chatRooms.get(chatId)
+  //   if(clients) {
+  //       clients.delete(socket);
 
-        // clean up empty rooms if their are no active client
-        if(clients.size === 0) {
-            this.chatRooms.delete(chatId);
-        }
-    }
-    
-    // delete userInRoom also
-    this.socketRoom.delete(socket)
-  }
+  //       // clean up empty rooms if their are no active client
+  //       if(clients.size === 0) {
+  //           this.chatRooms.delete(chatId);
+  //       }
+  //   }
+
+  //   // delete userInRoom also
+  //   this.socketRoom.delete(socket)
+  // }
 
   // broadcast
   broadcast(channel: string, data: ChatMessage) {
@@ -80,18 +77,19 @@ export class RoomManager {
 
     // getRoom
     const clients = this.chatRooms.get(chatId);
-    if(!clients) return;
+    if (!clients) return;
 
     // send message to all
-    clients.forEach((client)=>{
-      if(client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({
-          type: "message",
-          message: data.message,
-          chatId: data.chatId
-        }));
+    clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({
+            type: "message",
+            message: data.message,
+            chatId: data.chatId,
+          }),
+        );
       }
-    })
-    console.log("chat data: ", data);
+    });
   }
 }

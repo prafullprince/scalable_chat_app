@@ -59,4 +59,28 @@ export class SocketManager {
       }
     });
   }
+
+  // isUserOnline -> req sent by other participants in chat
+  isUserOnline(userId: string, socket: WebSocket) {
+    // fetch all sockets for the user
+    const clients = this.getSockets(userId);
+    if(!clients) {
+      return socket.send(JSON.stringify({
+        type: "online_status",
+        message: "client not found",
+        data: {
+          status: false
+        }
+      }))
+    }
+
+    // send client online status true if sockets exists
+    socket.send(JSON.stringify({
+      type: "online_status",
+      message: "Client Found",
+      data: {
+        status: true
+      }
+    }))
+  }
 }

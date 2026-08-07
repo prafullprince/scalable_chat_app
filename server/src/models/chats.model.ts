@@ -1,9 +1,8 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { ChatType } from "./types.model";
 
 export interface IChat extends Document {
   _id: Types.ObjectId;
-  type: ChatType;
+  chatType: string;
   participants: Types.ObjectId[];
   admins: Types.ObjectId[]; // only relevant for group chats
   groupName?: string;
@@ -18,7 +17,7 @@ export interface IChat extends Document {
 
 const ChatSchema = new Schema<IChat>(
   {
-    type: { type: String, enum: ["private","group"], required: true },
+    chatType: { type: String, enum: ["private","group"], required: true },
     participants: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     admins: [{ type: Schema.Types.ObjectId, ref: "User" }],
     groupName: { type: String, trim: true },

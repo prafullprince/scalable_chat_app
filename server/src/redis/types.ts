@@ -1,4 +1,3 @@
-import { ChatType } from "../models";
 
 // chat messages
 export type ChatMessage = {
@@ -7,6 +6,6 @@ export type ChatMessage = {
     chatId: string;
     sender: string;
     messageType: string;
-    chatType: ChatType;
+    chatType: string;
     receiver: string;
 }

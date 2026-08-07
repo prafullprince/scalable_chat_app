@@ -10,9 +10,8 @@ import { RedisManager } from "./managers/redis.manager";
 import { SocketManager } from "./managers/socket.manager";
 import { IUserPayload } from "./types/http";
 import { RoomManager } from "./managers/room.manager";
-import { publishMessage } from "./redis/publisher";
 import { addToQueue } from "./redis/add_to_queue";
-import { startWorker } from "./worker/worker.message";
+import { publishMessage } from "./redis/publisher/chat.publisher";
 
 // initialize an express app
 const app = express();
@@ -30,15 +29,16 @@ const wss = new WebSocketServer({ noServer: true });
 // upgrade socket
 server.on("upgrade", (request, socket, head) => {
   const url = new URL(request.url!, `http://${request.headers.host}`);
-
   const token = url.searchParams.get("token");
 
+  // token_validation
   if (!token) {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
     socket.destroy();
     return;
   }
 
+  // verify_token
   try {
     const decoded = jwt.verify(token, process.env.secret!);
     if (typeof decoded === "string" || !("id" in decoded)) {
@@ -61,16 +61,17 @@ server.on("upgrade", (request, socket, head) => {
 wss.on("connection", (socket, request) => {
   console.log(request.user);
   if (!request.user) {
-    // handle unauthenticated case
+    // handle_unauthenticated_case
     return socket.send("Please Authenticate First");
   }
   console.log("Client Connected");
 
-  // add sockets
+  // add_sockets
   SocketManager.getInstance().addSocket(request.user?.id, socket);
 
-  // message
+  // message_from_client
   socket.on("message", async (msg) => {
+    // incoming_message
     let data;
     try {
       data = JSON.parse(msg.toString());
@@ -82,25 +83,18 @@ wss.on("connection", (socket, request) => {
       return;
     }
 
-    // join room
+    // join_chat
     if (data.type === "join_chat") {
-      await RoomManager.getInstance().joinChat(
-        data.fromUserId,
-        data.toUserId,
-        data.chatType,
-        socket,
-      );
+      RoomManager.getInstance().join_chat(data.chatId, socket);
     }
 
-    // leave room
+    // leave_chat
     if (data.type === "leave_chat") {
     }
 
-    // incoming message
+    // chat
     if(data.type === "chat") {
-        console.log("chat mess: ", data);
-        await publishMessage(`chat:${data.chatId}`, data);
-        console.log("published");
+        await publishMessage(data.chatId, data);
         await addToQueue(data);
     }
   });

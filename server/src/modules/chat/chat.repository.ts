@@ -12,23 +12,23 @@ export class ChatRepository {
     return users;
   }
 
-  // isChatExists
-  async isChatExists(fromUserId: string, toUserId: string, chatType: ChatType) {
+  // isChatExistsInDb
+  async isChatExistsInDb(fromUserId: string, toUserId: string, chatType: string) {
     const isChat = await Chat.findOne({
       participants: {
         $all: [fromUserId, toUserId],
         $size: 2,
       },
-      type: chatType,
+      chatType: chatType,
     });
     return isChat;
   }
 
-  // createChat
-  async createChat(fromUserId: string, toUserId: string, chatType: ChatType) {
+  // createChatInDb
+  async createChatInDb(fromUserId: string, toUserId: string, chatType: string) {
     const chat = await Chat.create({
       participants: [fromUserId, toUserId],
-      type: chatType,
+      chatType: chatType,
       createdBy: fromUserId,
     });
     return chat;

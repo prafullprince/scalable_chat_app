@@ -10,10 +10,10 @@ export async function startWorker() {
     const chatService = new ChatService();
 
     while(true) {
-        const result = await redisQueueClient.blPop("chat_queue", 0);
-        if(!result) continue;
+        const chat_queue = await redisQueueClient.blPop("chat_queue", 0);
+        if(!chat_queue) continue;
 
-        const message = JSON.parse(result.element);
+        const message = JSON.parse(chat_queue.element);
         console.log("messages from queue: ", message);
 
         // store in mongodb
@@ -23,7 +23,6 @@ export async function startWorker() {
         } catch (error) {
             console.log("Error during saving messages in db: ", error);
         }
-
     }
 }
 startWorker();
