@@ -71,6 +71,27 @@ export class RoomManager {
   //   this.socketRoom.delete(socket)
   // }
 
+  cleanRoom(socket: WebSocket) {
+    const chatId = this.socketRoom.get(socket);
+    if(!chatId) {
+      return;
+    }
+
+    // delete sockets from chatRooms
+    const connectedClients = this.chatRooms.get(chatId);
+    if(!connectedClients) {
+      return;
+    }
+    connectedClients.delete(socket);
+
+    // if no clients remain then delete chatRoom
+    if(connectedClients.size === 0) {
+      this.chatRooms.delete(chatId);
+    }
+
+    this.socketRoom.delete(socket);
+  }
+
   // broadcast
   broadcast(channel: string, data: ChatMessage) {
     const chatId = channel.split(":")[1];

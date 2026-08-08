@@ -59,7 +59,7 @@ server.on("upgrade", (request, socket, head) => {
 
 // websocket connection
 wss.on("connection", (socket, request) => {
-  console.log(request.user);
+  console.log("LoggedIn User: ", request.user);
   if (!request.user) {
     // handle_unauthenticated_case
     return socket.send("Please Authenticate First");
@@ -97,6 +97,16 @@ wss.on("connection", (socket, request) => {
         await publishMessage(data.chatId, data);
         await addToQueue(data);
     }
+  });
+
+  // handle_disconnect
+  socket.on("close", () => {
+    // cleanup memory
+    // clean socket in socket_manager
+    SocketManager.getInstance().cleanSocket(socket);
+
+    // clean socket in chatRooms
+    RoomManager.getInstance().cleanRoom(socket);
   });
 });
 

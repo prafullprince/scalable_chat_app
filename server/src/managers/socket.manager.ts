@@ -3,6 +3,8 @@ import { WebSocket } from "ws";
 export class SocketManager {
   // user -> socket
   private sockets = new Map<string, Set<WebSocket>>();
+  // socket -> user
+  private userSocket = new Map<WebSocket, string>();
   private static instance: SocketManager;
 
   private constructor() {}
@@ -22,6 +24,7 @@ export class SocketManager {
     }
     // add socket to that user
     this.sockets.get(userId)?.add(socket);
+    this.userSocket.set(socket, userId);
   }
 
   getSockets(userId: string) {
@@ -31,7 +34,6 @@ export class SocketManager {
   removeSocket(userId: string, socket: WebSocket) {
     // check is user sockets are there
     const userSockets = this.sockets.get(userId);
-
     if (!userSockets) {
       return;
     }
@@ -45,7 +47,28 @@ export class SocketManager {
     }
   }
 
-  // sendToAllDevice
+  cleanSocket(socket: WebSocket) {
+    // check is user sockets are there
+    const userId = this.userSocket.get(socket);
+
+    if (!userId) {
+      return;
+    }
+
+    // remove that socket from Sockets
+    const userSockets = this.sockets.get(userId);
+    if(!userSockets) {
+      return;
+    }
+    userSockets?.delete(socket);
+
+    // clean up the map entry entirely once the user has no open sockets
+    if (userSockets.size === 0) {
+      this.sockets.delete(userId);
+    }
+    this.userSocket.delete(socket);
+  }
+
   sendToAllDevice(userId: string, msg: unknown) {
     const userSockets = this.sockets.get(userId);
     if (!userSockets) return;
@@ -58,29 +81,5 @@ export class SocketManager {
         socket.send(data);
       }
     });
-  }
-
-  // isUserOnline -> req sent by other participants in chat
-  isUserOnline(userId: string, socket: WebSocket) {
-    // fetch all sockets for the user
-    const clients = this.getSockets(userId);
-    if(!clients) {
-      return socket.send(JSON.stringify({
-        type: "online_status",
-        message: "client not found",
-        data: {
-          status: false
-        }
-      }))
-    }
-
-    // send client online status true if sockets exists
-    socket.send(JSON.stringify({
-      type: "online_status",
-      message: "Client Found",
-      data: {
-        status: true
-      }
-    }))
   }
 }
