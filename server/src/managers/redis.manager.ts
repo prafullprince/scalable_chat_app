@@ -49,3 +49,4 @@ export class RedisManager {
     return this.queueClient;
   }
 }
+
