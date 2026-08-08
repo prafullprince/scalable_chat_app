@@ -5,6 +5,6 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/create_private_chat", validateRequest(create_private_chat_schema), chatController.create_private_chat);
+router.post("/private_chat", validateRequest(create_private_chat_schema), chatController.create_private_chat);
 
 export default router;
