@@ -1,4 +1,3 @@
-
 // chat messages
 export type ChatMessage = {
     type: string;
@@ -9,3 +8,5 @@ export type ChatMessage = {
     chatType: string;
     receiver: string;
 }
+
+// online

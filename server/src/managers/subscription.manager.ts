@@ -1,3 +1,4 @@
+import { WebSocket } from "ws";
 import { ChatMessage } from "../redis/types";
 import { RedisManager } from "./redis.manager";
 import { RoomManager } from "./room.manager";
@@ -15,8 +16,14 @@ export class SubscriptionManager {
   }
 
   // subscribe_presence
-  async subscribePresence(userId: string) {
-    await this.subscriber.subscribe(`presence:${userId}`, ()=>{});
+  async subscribePresence(userId: string, socket: WebSocket) {
+    await this.subscriber.subscribe(`presence:${userId}`, (message: string)=>{
+      socket.send(JSON.stringify({
+        type: "online_receiver",
+        status: true,
+        message
+      }))
+    });
   }
 
   // unsubscribe_presence

@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import { connectDB } from "./config/mongoDB";
 dotenv.config();
 import jwt from "jsonwebtoken";
@@ -12,6 +12,8 @@ import { IUserPayload } from "./types/http";
 import { RoomManager } from "./managers/room.manager";
 import { addToQueue } from "./redis/add_to_queue";
 import { publishMessage } from "./redis/publisher/chat.publisher";
+import { publishPresence } from "./redis/publisher/presence.publisher";
+import { SubscriptionManager } from "./managers/subscription.manager";
 
 // initialize an express app
 const app = express();
@@ -58,7 +60,7 @@ server.on("upgrade", (request, socket, head) => {
 });
 
 // websocket connection
-wss.on("connection", (socket, request) => {
+wss.on("connection", async (socket, request) => {
   console.log("LoggedIn User: ", request.user);
   if (!request.user) {
     // handle_unauthenticated_case
@@ -67,7 +69,8 @@ wss.on("connection", (socket, request) => {
   console.log("Client Connected");
 
   // add_sockets
-  SocketManager.getInstance().addSocket(request.user?.id, socket);
+  SocketManager.getInstance().addSocket(request.user?.id, socket);    
+  await publishPresence(request.user?.id, "I marked myself online");
 
   // message_from_client
   socket.on("message", async (msg) => {
@@ -96,6 +99,11 @@ wss.on("connection", (socket, request) => {
     if(data.type === "chat") {
         await publishMessage(data.chatId, data);
         await addToQueue(data);
+    }
+
+    // is otherUserInthisChat online or offline
+    if(data.type === "online") {
+      await SubscriptionManager.getInstance().subscribePresence(data.receiverId, socket);
     }
   });
 

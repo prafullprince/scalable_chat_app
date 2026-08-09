@@ -1,4 +1,6 @@
 import { WebSocket } from "ws";
+import { publishPresence } from "../redis/publisher/presence.publisher";
+import { SubscriptionManager } from "./subscription.manager";
 
 export class SocketManager {
   // user -> socket
@@ -67,6 +69,9 @@ export class SocketManager {
       this.sockets.delete(userId);
     }
     this.userSocket.delete(socket);
+
+    // unsubscribe_presence
+    SubscriptionManager.getInstance().unsubscribePresence(userId);
   }
 
   sendToAllDevice(userId: string, msg: unknown) {

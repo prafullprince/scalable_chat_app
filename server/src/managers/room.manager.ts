@@ -90,6 +90,9 @@ export class RoomManager {
     }
 
     this.socketRoom.delete(socket);
+
+    // unsubscribe_room
+    SubscriptionManager.getInstance().unsubscribeChatRoom(chatId);
   }
 
   // broadcast
