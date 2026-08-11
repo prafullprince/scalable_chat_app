@@ -5,6 +5,9 @@ import { WebSocketServer, WebSocket } from "ws";
 import { connectDB } from "./config/mongoDB";
 dotenv.config();
 import jwt from "jsonwebtoken";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
 import authRoutes from "./routes/index";
 import { RedisManager } from "./managers/redis.manager";
 import { SocketManager } from "./managers/socket.manager";
@@ -20,7 +23,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middleware
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // create a http server instance
 const server = http.createServer(app);

@@ -12,9 +12,9 @@ export const passwordSchema = z
   .string()
   .trim()
   .min(8, "Password must contain 8 characters")
-  .regex(/[a-z]/, "Password must contain lowercase char")
-  .regex(/[A-Z]/, "Password must contain uppercase char")
-  .regex(/[0-9]/, "Password must contain a Number");
+  // .regex(/[a-z]/, "Password must contain lowercase char")
+  // .regex(/[A-Z]/, "Password must contain uppercase char")
+  // .regex(/[0-9]/, "Password must contain a Number");
 
 // OTP Schema
 export const otpSchema = z
@@ -29,6 +29,7 @@ export const registerSchema = z.object({
     name: z.string().trim().min(3, "Name must be of at least 3 characters"),
     email: emailSchema,
     password: passwordSchema,
+    confirmPassword: passwordSchema,
     otp: otpSchema
   }),
 });

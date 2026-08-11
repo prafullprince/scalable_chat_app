@@ -11,3 +11,9 @@ declare module "http" {
     user?: IUserPayload;
   }
 }
+
+declare module "express" {
+  interface IncomingMessage {
+    User?: IUserPayload;
+  }
+}
