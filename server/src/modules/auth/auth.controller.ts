@@ -37,7 +37,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = await authService.login(req.body);
-        if(!data.access_token || !data.refresh_token || !data.user_about || !data.user_dp || !data.user_email || !data.user_name) {
+        if(!data.access_token || !data.refresh_token || !data.user_about || !data.user_dp || !data.user_email || !data.user_name || !data.user_id) {
             throw new ApiError(400, "Data not found");
         }
 
@@ -57,7 +57,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 name: data.user_name,
                 email: data.user_email,
                 about: data.user_about,
-                profile_pic: data.user_dp
+                profile_pic: data.user_dp,
+                user_id: data.user_id
             }
         });
     } catch (error) {
@@ -75,7 +76,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
         }
 
         const data = await authService.refresh(refresh_token);
-        if(!data.accessToken || !data.refreshToken || !data.user_about || !data.user_dp || !data.user_email || !data.user_name) {
+        if(!data.accessToken || !data.refreshToken || !data.user_about || !data.user_dp || !data.user_email || !data.user_name || !data.user_id) {
             throw new ApiError(400, "Token or User not found");
         }
 
@@ -94,7 +95,8 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
                 user_name: data.user_name,
                 user_about: data.user_about,
                 user_email: data.user_email,
-                user_dp: data.user_dp
+                user_dp: data.user_dp,
+                user_id: data.user_id
             }
         });
     } catch (error) {

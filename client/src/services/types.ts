@@ -14,3 +14,13 @@ export type LoginReq = {
 export type sendOtpReq = {
     email: string
 }
+
+export type CreatePrivateChatReq = {
+    toUserEmail: string;
+    chatType: string;
+}
+
+export type fetchChatDetailsReq = {
+    chatId: string;
+    before: string | null;
+}

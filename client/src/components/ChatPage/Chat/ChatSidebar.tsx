@@ -1,8 +1,8 @@
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { MdOutlineCreateNewFolder } from "react-icons/md";
 import SearchBar from "../Sidebar/SearchBar";
 import Buttons from "../Sidebar/Buttons";
 import Chats from "../Sidebar/Chats";
+import CreateChat from "../Sidebar/CreateChat";
 
 const ChatSidebar = () => {
   return (
@@ -13,8 +13,8 @@ const ChatSidebar = () => {
         <h1 className="text-wa-bg font-extrabold text-2xl">WhatsApp</h1>
 
         {/* right */}
-        <div className="flex items-center gap-4">
-          <MdOutlineCreateNewFolder className="text-wa-bg text-3xl" />
+        <div className="flex items-center gap-4 relative">
+          <CreateChat />
           <BsThreeDotsVertical className="text-wa-bg text-2xl font-semibold" />
         </div>
       </div>

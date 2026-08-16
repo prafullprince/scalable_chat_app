@@ -1,9 +1,9 @@
 import { RedisManager } from "../../managers/redis.manager";
-import { ChatMessage } from "../types";
+import { ModifiedChatMessage } from "../types";
 
 export const publishMessage = async (
   chatId: string,
-  message: ChatMessage
+  message: ModifiedChatMessage
 ) => {
   await RedisManager.getInstance()
     .getPublisher()

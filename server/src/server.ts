@@ -17,6 +17,8 @@ import { addToQueue } from "./redis/add_to_queue";
 import { publishMessage } from "./redis/publisher/chat.publisher";
 import { publishPresence } from "./redis/publisher/presence.publisher";
 import { SubscriptionManager } from "./managers/subscription.manager";
+import { ModifiedChatMessage } from "./redis/types";
+import { Types } from 'mongoose';
 
 // initialize an express app
 const app = express();
@@ -50,7 +52,7 @@ server.on("upgrade", (request, socket, head) => {
 
   // verify_token
   try {
-    const decoded = jwt.verify(token, process.env.secret!);
+    const decoded = jwt.verify(token, process.env.access_secret!);
     if (typeof decoded === "string" || !("id" in decoded)) {
       socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
       socket.destroy();
@@ -78,6 +80,8 @@ wss.on("connection", async (socket, request) => {
 
   // add_sockets
   SocketManager.getInstance().addSocket(request.user?.id, socket);    
+
+  // publish online status
   await publishPresence(request.user?.id, "I marked myself online");
 
   // message_from_client
@@ -101,12 +105,25 @@ wss.on("connection", async (socket, request) => {
 
     // leave_chat
     if (data.type === "leave_chat") {
+      RoomManager.getInstance().leaveChat(socket);
     }
 
     // chat
     if(data.type === "chat") {
-        await publishMessage(data.chatId, data);
-        await addToQueue(data);
+        const newData: ModifiedChatMessage = {
+          type: data.type,
+          _id: new Types.ObjectId,
+          createdAt: new Date(),
+          text: data.text,
+          chatId: data.chatId,
+          sender: data.sender,
+          messageType: data.messageType,
+          chatType: data.chatType,
+          receiver: data.receiver,
+          updatedAt: new Date()
+        }
+        await publishMessage(data.chatId, newData);
+        await addToQueue(newData);
     }
 
     // is otherUserInthisChat online or offline
@@ -116,13 +133,13 @@ wss.on("connection", async (socket, request) => {
   });
 
   // handle_disconnect
-  socket.on("close", () => {
+  socket.on("close", async () => {
     // cleanup memory
     // clean socket in socket_manager
-    SocketManager.getInstance().cleanSocket(socket);
+    await SocketManager.getInstance().cleanSocket(socket);
 
     // clean socket in chatRooms
-    RoomManager.getInstance().cleanRoom(socket);
+    await RoomManager.getInstance().cleanRoom(socket);
   });
 });
 

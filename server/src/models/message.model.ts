@@ -52,4 +52,6 @@ const MessageSchema = new Schema<IMessage>(
   },
   { timestamps: true }
 );
+
+MessageSchema.index({ chat: 1, createdAt: -1 });
 export const Message = model<IMessage>("Message", MessageSchema);

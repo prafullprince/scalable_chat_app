@@ -10,12 +10,14 @@ import { RegisterReq } from "@/services/types";
 import { AuthService } from "@/services/auth.service";
 import { setLoading } from "@/slice/auth.slice";
 import Spinner from "@/loading/Spinner";
-import PublicOnlyRoute from "@/lib/PublicRoute";
+import PublicOnlyRoute from "@/lib/auth/PublicRoute";
+import { useRouter } from "next/navigation";
 
 export default function VerifyEmailPage() {
   const signupData = useAppSelector((state) => state.auth.signupData);
   const loading = useAppSelector((state) => state.auth.loading);
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const [otp, setOtp] = useState<string>("");
 
@@ -34,6 +36,7 @@ export default function VerifyEmailPage() {
         return;
       }
       toast.success(res.message);
+      router.push("/login");
     } catch (error) {
       console.log(error);
       if (error instanceof Error) {

@@ -10,13 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Spinner from "@/loading/Spinner";
 import PublicOnlyRoute from "@/lib/auth/PublicRoute";
-
-export interface SignupForm {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+import type { SignupForm } from "@/types/auth/auth.page";
 
 export default function SignupPage() {
   const loading = useAppSelector((state) => state.auth.loading);

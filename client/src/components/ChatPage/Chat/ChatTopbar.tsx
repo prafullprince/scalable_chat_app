@@ -8,7 +8,7 @@ export default function ChatTopBar({
   avatarUrl,
   status,
 }: {
-  name: string;
+  name: string | undefined;
   avatarUrl?: string;
   status?: string; // "online", "typing...", "last seen today at ..."
 }) {
@@ -19,7 +19,7 @@ export default function ChatTopBar({
           {avatarUrl ? (
             <Image
               src={avatarUrl}
-              alt={name}
+              alt={name ? name : "Name"}  
               width={40}
               height={40}
               unoptimized
@@ -27,7 +27,7 @@ export default function ChatTopBar({
             />
           ) : (
             <div className="w-full h-full bg-wa-accent flex items-center justify-center text-white text-sm font-medium">
-              {name.charAt(0).toUpperCase()}
+              {name && name.charAt(0).toUpperCase()}
             </div>
           )}
         </div>

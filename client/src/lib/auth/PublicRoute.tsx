@@ -9,14 +9,22 @@ export default function PublicOnlyRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { access_token } = useAuthGuard();
+  const { access_token, status } = useAuthGuard();
   const router = useRouter();
 
   useEffect(() => {
-    if (access_token) {
+    if (status === "authenticated") {
       router.replace("/chat");
     }
-  }, [access_token, router]);
+  }, [status, router]);
+
+  if (status === "checking") {
+    return null;
+  }
+
+  if (access_token) {
+    return null;
+  }
 
   return <>{children}</>;
 }

@@ -6,6 +6,7 @@ import { LoginDto, RegisterDto, VerifyEmailDto } from "./auth.validation";
 import bcrypt from "bcryptjs";
 import otpGenerator from "otp-generator";
 import jwt from "jsonwebtoken";
+import { Types } from 'mongoose';
 
 export class AuthService {
   private repo = new AuthRepository();
@@ -97,6 +98,7 @@ export class AuthService {
     user_email: string;
     user_dp: any;
     user_about: string;
+    user_id: Types.ObjectId;
   }> {
     // isUser register
     const isUser = await this.repo.findByEmail(input.email);
@@ -144,8 +146,8 @@ export class AuthService {
       user_email: isUser.email,
       user_dp: isUser.avatarUrl,
       user_about: isUser.about,
+      user_id: isUser._id
     };
-
     return data;
   }
 
@@ -208,6 +210,7 @@ export class AuthService {
       user_email: isUser?.email,
       user_dp: isUser?.avatarUrl,
       user_about: isUser?.about,
+      user_id: isUser?._id
     };
     return data;
   }

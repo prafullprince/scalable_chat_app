@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import { Plus, Smile, Mic, Send } from 'lucide-react';
 
 export default function MessageInput({
+  text,
+  setText,
   onSend,
 }: {
+  text: string;
+  setText: React.Dispatch<React.SetStateAction<string>>;
   onSend: (text: string) => void;
 }) {
-  const [text, setText] = useState('');
 
   const handleSend = () => {
     if (!text.trim()) return;

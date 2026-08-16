@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { ChatMessage } from "../redis/types";
+import { ChatMessage, ModifiedChatMessage } from "../redis/types";
 import { RedisManager } from "./redis.manager";
 import { RoomManager } from "./room.manager";
 
@@ -17,12 +17,14 @@ export class SubscriptionManager {
 
   // subscribe_presence
   async subscribePresence(userId: string, socket: WebSocket) {
-    await this.subscriber.subscribe(`presence:${userId}`, (message: string)=>{
-      socket.send(JSON.stringify({
-        type: "online_receiver",
-        status: true,
-        message
-      }))
+    await this.subscriber.subscribe(`presence:${userId}`, (message: string) => {
+      socket.send(
+        JSON.stringify({
+          type: "online_receiver",
+          status: true,
+          message,
+        }),
+      );
     });
   }
 
@@ -35,21 +37,21 @@ export class SubscriptionManager {
   async subscribeChatRoom(chatId: string) {
     await this.subscriber.subscribe(`chat:${chatId}`, (message: string) => {
       // when message came in this chat room
-      const data: ChatMessage = JSON.parse(message);
+      const data: ModifiedChatMessage = JSON.parse(message);
 
       // broadcast message to chatRoom
       RoomManager.getInstance().broadcast(`chatId:${chatId}`, data);
     });
   }
 
-  // subscribe_typing
-  async subscribeTyping(chatId: string) {
-    await this.subscriber.subscribe(`typing:${chatId}`, ()=>{});
-  }
-
   // unsubscribe_chat_room
   async unsubscribeChatRoom(chatId: string) {
     await this.subscriber.unsubscribe(`chat:${chatId}`);
+  }
+
+  // subscribe_typing
+  async subscribeTyping(chatId: string) {
+    await this.subscriber.subscribe(`typing:${chatId}`, () => {});
   }
 
   // unsubscribe_typing
@@ -59,10 +61,7 @@ export class SubscriptionManager {
 
   // subscribe_notification
   async subscribeNotification(userId: string) {
-    await this.subscriber.subscribe(
-      `notification:${userId}`,
-      ()=>{},
-    );
+    await this.subscriber.subscribe(`notification:${userId}`, () => {});
   }
 
   // unsubscribe_notification

@@ -55,13 +55,13 @@ export class AuthRepository {
     // -----Token------
     async createAccessToken(id: mongoose.Types.ObjectId, name: string, email: string): Promise<string> {
         const payload = { id, name, email };
-        const access_token = jwt.sign(payload, process.env.access_secret!, { expiresIn: "2h" });
+        const access_token = jwt.sign(payload, process.env.access_secret!, { expiresIn: "10m" });
         return access_token;
     }
 
     async createRefreshToken(id: mongoose.Types.ObjectId, name: string, email: string): Promise<string> {
         const payload = { id, name, email };
-        const refresh_token = jwt.sign(payload, process.env.refresh_secret!, { expiresIn: "7d" });
+        const refresh_token = jwt.sign(payload, process.env.refresh_secret!, { expiresIn: "1d" });
         return refresh_token;
     }
 

@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { ChatMessage } from "../redis/types";
+import { ChatMessage, ModifiedChatMessage } from "../redis/types";
 import { SubscriptionManager } from "./subscription.manager";
 
 export class RoomManager {
@@ -22,6 +22,19 @@ export class RoomManager {
 
   // join_chat
   async join_chat(chatId: string, socket: WebSocket) {
+    // check any chat exist with this socket
+    const currentChatId = this.socketRoom.get(socket);
+
+    // if exists and that chat is not the same chat. leave
+    if(currentChatId && currentChatId !== chatId) {
+      await this.leaveChat(socket);
+    }
+
+    // if chat is same the current chat then you already joined
+    if(currentChatId === chatId) {
+      return;
+    }
+
     // check isRoom Exists
     const clients = this.chatRooms.get(chatId);
 
@@ -35,7 +48,7 @@ export class RoomManager {
 
     // add socket in chatRoom
     this.chatRooms.get(chatId)?.add(socket);
-
+    console.log(this.chatRooms)
     // chatId in socketRoom
     this.socketRoom.set(socket, chatId);
 
@@ -49,29 +62,31 @@ export class RoomManager {
   }
 
   // leave_room
-  // leaveChat(socket: WebSocket) {
-  //   // is this socket is in any room
-  //   const chatId = this.socketRoom.get(socket);
-  //   if(!chatId) {
-  //       return;
-  //   }
+  async leaveChat(socket: WebSocket) {
+    // is this socket is in any room
+    const chatId = this.socketRoom.get(socket);
+    if(!chatId) {
+        return;
+    }
 
-  //   // fetch sockets of this room
-  //   const clients = this.chatRooms.get(chatId)
-  //   if(clients) {
-  //       clients.delete(socket);
+    // fetch sockets of this room
+    const clients = this.chatRooms.get(chatId)
+    if(clients) {
+        clients.delete(socket);
 
-  //       // clean up empty rooms if their are no active client
-  //       if(clients.size === 0) {
-  //           this.chatRooms.delete(chatId);
-  //       }
-  //   }
+        // clean up empty rooms if their are no active client
+        if(clients.size === 0) {
+            this.chatRooms.delete(chatId);
+            // unsubscribe chat room -> when no user left in the chat
+            await SubscriptionManager.getInstance().unsubscribeChatRoom(chatId);
+        }
+    }
 
-  //   // delete userInRoom also
-  //   this.socketRoom.delete(socket)
-  // }
+    // delete socket from socketRoom also
+    this.socketRoom.delete(socket);
+  }
 
-  cleanRoom(socket: WebSocket) {
+  async cleanRoom(socket: WebSocket) {
     const chatId = this.socketRoom.get(socket);
     if(!chatId) {
       return;
@@ -87,16 +102,14 @@ export class RoomManager {
     // if no clients remain then delete chatRoom
     if(connectedClients.size === 0) {
       this.chatRooms.delete(chatId);
+      // unsubscribe_room -> when no user left in the chat
+      await SubscriptionManager.getInstance().unsubscribeChatRoom(chatId);
     }
-
     this.socketRoom.delete(socket);
-
-    // unsubscribe_room
-    SubscriptionManager.getInstance().unsubscribeChatRoom(chatId);
   }
 
   // broadcast
-  broadcast(channel: string, data: ChatMessage) {
+  broadcast(channel: string, data: ModifiedChatMessage) {
     const chatId = channel.split(":")[1];
 
     // getRoom
@@ -108,12 +121,20 @@ export class RoomManager {
       if (client.readyState === WebSocket.OPEN) {
         client.send(
           JSON.stringify({
-            type: "message",
-            message: data.message,
+            type: "new_message",
+            _id: data._id,
+            createdAt: data.createdAt,
+            text: data.text,
             chatId: data.chatId,
+            sender: data.sender,
+            messageType: data.messageType,
+            chatType: data.chatType,
+            receiver: data.receiver,
+            updatedAt: data.updatedAt
           }),
         );
       }
     });
   }
+
 }

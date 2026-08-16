@@ -49,7 +49,7 @@ export class SocketManager {
     }
   }
 
-  cleanSocket(socket: WebSocket) {
+  async cleanSocket(socket: WebSocket) {
     // check is user sockets are there
     const userId = this.userSocket.get(socket);
 
@@ -71,7 +71,7 @@ export class SocketManager {
     this.userSocket.delete(socket);
 
     // unsubscribe_presence
-    SubscriptionManager.getInstance().unsubscribePresence(userId);
+    await SubscriptionManager.getInstance().unsubscribePresence(userId);
   }
 
   sendToAllDevice(userId: string, msg: unknown) {
