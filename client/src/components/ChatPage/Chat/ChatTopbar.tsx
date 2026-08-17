@@ -3,18 +3,20 @@
 import Image from "next/image";
 import { Video, Phone, Search, MoreVertical } from "lucide-react";
 import { ChatStatus } from "@/slice/chat.slice";
-import { HiOutlineStatusOffline, HiOutlineStatusOnline } from "react-icons/hi";
+
 
 export default function ChatTopBar({
   name,
   avatarUrl,
   chatUserStatus,
   userId,
+  isTyping
 }: {
   name: string | undefined;
   avatarUrl?: string;
   chatUserStatus: Record<string, ChatStatus>; // "online", "typing...", "last seen today at ..."
   userId: string;
+  isTyping: boolean
 }) {
   const status = userId ? (chatUserStatus[userId] ?? "offline") : "offline";
   return (
@@ -42,12 +44,12 @@ export default function ChatTopBar({
           </h2>
           {status && (
             <p className="text-wa-text-muted text-xs truncate">
-              {status === "online" && (
-                <HiOutlineStatusOnline className="text-green-400 text-xl" />
+              {status === "online" && !isTyping && (
+                <span className="text-green-400 text-sm" >online</span>
               )}
-              {status === "offline" && (
-                <HiOutlineStatusOffline className="text-lg" />
-              )}
+              {
+                status === "online" && isTyping && <span className="text-green-400 text-sm">typing....</span>
+              }
             </p>
           )}
         </div>

@@ -51,8 +51,20 @@ export class SubscriptionManager {
   }
 
   // subscribe_typing
-  async subscribeTyping(chatId: string) {
-    await this.subscriber.subscribe(`typing:${chatId}`, () => {});
+  async subscribeTyping(chatId: string, socket: WebSocket) {
+    await this.subscriber.subscribe(`typing:${chatId}`, (messsage: string) => {
+      console.log("typing");
+      const data = JSON.parse(messsage);
+
+      if(socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: "typing",
+          status: data.status,
+          chatId: data.chatId,
+          userId: data.userId
+        }));
+      }
+    });
   }
 
   // unsubscribe_typing

@@ -1,7 +1,7 @@
 import { RedisManager } from "../../managers/redis.manager";
 
-export const publishtyping = async (roomId: string, message: any) => {
+export const publishtyping = async (chatId: string, message: any) => {
     RedisManager.getInstance()
         .getPublisher()
-        .publish(`typing:${roomId}`, JSON.stringify(message));
+        .publish(`typing:${chatId}`, JSON.stringify(message));
 }

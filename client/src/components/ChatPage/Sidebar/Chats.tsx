@@ -148,8 +148,8 @@ const Chats = () => {
                     <div className="flex items-center gap-2">
                       {chat?.lastMessage?.isSeen}
                       <p className="text-white/50 text-xs font-medium">
+                        {status === "online" ? <span className="text-sm text-green-400">online</span> : ""}
                         {chat?.lastMessage?.message}
-                        {status}
                       </p>
                     </div>
                   </div>

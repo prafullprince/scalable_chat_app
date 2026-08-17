@@ -19,6 +19,7 @@ import { publishPresence } from "./redis/publisher/presence.publisher";
 import { SubscriptionManager } from "./managers/subscription.manager";
 import { ModifiedChatMessage } from "./redis/types";
 import { Types } from 'mongoose';
+import { publishtyping } from "./redis/publisher/typing.publisher";
 
 // initialize an express app
 const app = express();
@@ -145,6 +146,12 @@ wss.on("connection", async (socket, request) => {
 
       // subscribe presence channel for future update
       await SubscriptionManager.getInstance().subscribePresence(data.receiverId, socket);
+    }
+
+    // typing
+    if(data.type === "typing_status") {
+      // publish
+      await publishtyping(data.chatId, data);
     }
   });
 

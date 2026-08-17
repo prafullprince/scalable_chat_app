@@ -52,6 +52,9 @@ export class RoomManager {
     // chatId in socketRoom
     this.socketRoom.set(socket, chatId);
 
+    // subscribe_on_typing_channel
+    await SubscriptionManager.getInstance().subscribeTyping(chatId, socket); 
+
     // return
     socket.send(
       JSON.stringify({
