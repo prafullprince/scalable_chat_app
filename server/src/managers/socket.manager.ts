@@ -1,6 +1,7 @@
 import { WebSocket } from "ws";
 import { publishPresence } from "../redis/publisher/presence.publisher";
 import { SubscriptionManager } from "./subscription.manager";
+import { RedisManager } from "./redis.manager";
 
 export class SocketManager {
   // user -> socket
@@ -71,7 +72,8 @@ export class SocketManager {
     this.userSocket.delete(socket);
 
     // unsubscribe_presence
-    await SubscriptionManager.getInstance().unsubscribePresence(userId);
+    await RedisManager.getInstance().setPresence(userId, "offline");
+    await publishPresence(userId, "offline");
   }
 
   sendToAllDevice(userId: string, msg: unknown) {

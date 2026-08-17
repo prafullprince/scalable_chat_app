@@ -21,6 +21,7 @@ export default function ChatPage() {
   const senderId = useAppSelector((state) => state.auth.user?.user_id);
   const { socketRef, isConnected } = useWebSocket();
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const chatUserStatus = useAppSelector((state)=>state.chat.chatUserStatus);
 
   // state
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ export default function ChatPage() {
   const [text, setText] = useState("");
   const [userLoading, setUserLoading] = useState(false);
   const [userDetails, setUserDetails] = useState<IUserResponse | null>(null);
+  const [chatStatus, setChatStatus] = useState("");
 
   // fetch_older_messages
   async function fetchOlderMessages() {
@@ -104,6 +106,12 @@ export default function ChatPage() {
       }),
     );
 
+    // mark as online
+    socket.send(JSON.stringify({
+      type: "online",
+      receiverId: userId
+    }));
+
     function handleMessage(e: MessageEvent) {
       const data = JSON.parse(e.data);
 
@@ -118,6 +126,11 @@ export default function ChatPage() {
         };
         console.log("data incoming: ", data);
         setMessages((prev) => [...prev, message]);
+      }
+
+      if(data.type === "online_receiver") {
+        console.log("online receiver: ", data);
+        setChatStatus("online");
       }
     }
 
@@ -136,7 +149,7 @@ export default function ChatPage() {
         );
       }
     };
-  }, [isConnected, chatId, socketRef]);
+  }, [isConnected, chatId, socketRef, userId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
@@ -148,7 +161,7 @@ export default function ChatPage() {
     <div className="flex flex-col min-h-screen flex-1 bg-wa-bg-dark relative">
       <ProtectedLayout>
         {!userLoading ? (
-          <ChatTopBar name={userDetails?.name} status="online" />
+          <ChatTopBar name={userDetails?.name} chatUserStatus={chatUserStatus} userId={userId} />
         ) : (
           <div className="w-full h-17.5 flex justify-center items-center px-4 bg-[#161717] border-b border-white/5">
             <Spinner className="w-6 h-6 text-yellow-600" />

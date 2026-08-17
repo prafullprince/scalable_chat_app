@@ -1,6 +1,8 @@
+"use client"
 import Link from "next/link";
 
 export default function Home() {
+
   return (
     <div className="flex flex-col gap-4 bg-wa-bg-dark text-wa-bg max-w-4xl mx-auto">
       <div className="flex flex-col gap-4 mt-20 items-center">

@@ -18,11 +18,12 @@ export class SubscriptionManager {
   // subscribe_presence
   async subscribePresence(userId: string, socket: WebSocket) {
     await this.subscriber.subscribe(`presence:${userId}`, (message: string) => {
+      console.log("subscribed to presence", userId);
       socket.send(
         JSON.stringify({
           type: "online_receiver",
-          status: true,
-          message,
+          status: message,
+          userId
         }),
       );
     });

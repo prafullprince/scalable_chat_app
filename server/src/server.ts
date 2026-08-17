@@ -72,7 +72,7 @@ server.on("upgrade", (request, socket, head) => {
 // websocket connection
 wss.on("connection", async (socket, request) => {
   console.log("LoggedIn User: ", request.user);
-  if (!request.user) {
+  if (!request.user || !request.user.id) {
     // handle_unauthenticated_case
     return socket.send("Please Authenticate First");
   }
@@ -82,7 +82,8 @@ wss.on("connection", async (socket, request) => {
   SocketManager.getInstance().addSocket(request.user?.id, socket);    
 
   // publish online status
-  await publishPresence(request.user?.id, "I marked myself online");
+  await RedisManager.getInstance().setPresence(request.user.id, "online");
+  await publishPresence(request.user?.id, "online");
 
   // message_from_client
   socket.on("message", async (msg) => {
@@ -127,7 +128,22 @@ wss.on("connection", async (socket, request) => {
     }
 
     // is otherUserInthisChat online or offline
-    if(data.type === "online") {
+    if(data.type === "is_online") {
+      console.log("is_online");
+
+      // check presence state
+      const status = await RedisManager.getInstance().getPresence(data.receiverId);
+
+      // if present -> send status to client
+      if(status) {
+        socket.send(JSON.stringify({
+          type: "online_receiver",
+          userId: data.receiverId,
+          status
+        }))
+      }
+
+      // subscribe presence channel for future update
       await SubscriptionManager.getInstance().subscribePresence(data.receiverId, socket);
     }
   });
@@ -135,7 +151,7 @@ wss.on("connection", async (socket, request) => {
   // handle_disconnect
   socket.on("close", async () => {
     // cleanup memory
-    // clean socket in socket_manager
+    // clean socket in socket_manager and also unsubscribe presence
     await SocketManager.getInstance().cleanSocket(socket);
 
     // clean socket in chatRooms

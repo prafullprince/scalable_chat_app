@@ -2,16 +2,21 @@
 
 import Image from "next/image";
 import { Video, Phone, Search, MoreVertical } from "lucide-react";
+import { ChatStatus } from "@/slice/chat.slice";
+import { HiOutlineStatusOffline, HiOutlineStatusOnline } from "react-icons/hi";
 
 export default function ChatTopBar({
   name,
   avatarUrl,
-  status,
+  chatUserStatus,
+  userId,
 }: {
   name: string | undefined;
   avatarUrl?: string;
-  status?: string; // "online", "typing...", "last seen today at ..."
+  chatUserStatus: Record<string, ChatStatus>; // "online", "typing...", "last seen today at ..."
+  userId: string;
 }) {
+  const status = userId ? (chatUserStatus[userId] ?? "offline") : "offline";
   return (
     <header className="flex items-center justify-between h-17.5 px-4 bg-[#161717] border-b border-white/5">
       <div className="flex items-center gap-3 min-w-0">
@@ -19,7 +24,7 @@ export default function ChatTopBar({
           {avatarUrl ? (
             <Image
               src={avatarUrl}
-              alt={name ? name : "Name"}  
+              alt={name ? name : "Name"}
               width={40}
               height={40}
               unoptimized
@@ -36,7 +41,14 @@ export default function ChatTopBar({
             {name}
           </h2>
           {status && (
-            <p className="text-wa-text-muted text-xs truncate">{status}</p>
+            <p className="text-wa-text-muted text-xs truncate">
+              {status === "online" && (
+                <HiOutlineStatusOnline className="text-green-400 text-xl" />
+              )}
+              {status === "offline" && (
+                <HiOutlineStatusOffline className="text-lg" />
+              )}
+            </p>
           )}
         </div>
       </div>
