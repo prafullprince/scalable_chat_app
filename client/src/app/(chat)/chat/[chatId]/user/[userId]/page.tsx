@@ -11,6 +11,7 @@ import { ChatService } from "@/services/chat.service";
 import { UserService } from "@/services/user.service";
 import { IMessage } from "@/types/chat_sidebar/chat.types";
 import { IUserResponse } from "@/types/user/user.type.res";
+import { formatMessageDate } from "@/utills/format.date";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ export default function ChatPage() {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [messsages, setMessages] = useState<IMessage[]>([]);
+  console.log(messsages);
   const [text, setText] = useState("");
   const [userLoading, setUserLoading] = useState(false);
   const [userDetails, setUserDetails] = useState<IUserResponse | null>(null);
@@ -139,7 +141,6 @@ export default function ChatPage() {
       }
 
       if(data.type === "typing") {
-        console.log("typing....", data);
         if(data.status === "typing") {
           setIsTyping(true);
         } else {
@@ -204,7 +205,7 @@ export default function ChatPage() {
           chatId: chatId,
         }),
       );
-    }, 5000);
+    }, 2000);
 
     return () => {
       if (typingTimerRef.current) {
@@ -257,14 +258,14 @@ export default function ChatPage() {
                 {msg.sender === senderId ? (
                   <MessageBubble
                     text={msg.text}
-                    time="18:53"
+                    time={formatMessageDate(msg.createdAt)}
                     isOutgoing
                     status="read"
                   />
                 ) : (
                   <MessageBubble
                     text={msg.text}
-                    time="18:53"
+                    time={formatMessageDate(msg.createdAt)}
                     isOutgoing={false}
                     status="read"
                   />

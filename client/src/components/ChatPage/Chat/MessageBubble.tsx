@@ -31,7 +31,7 @@ export default function MessageBubble({
           {text}
         </p>
         <span className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-wa-text-muted">
-          {time}
+          <span className="text-mauve-400">{time}</span>
           {isOutgoing &&
             (status === "read" ? (
               <CheckCheck size={14} className="text-[#53bdeb]" />
