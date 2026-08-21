@@ -26,7 +26,6 @@ export default function SignupPage() {
     confirmPassword: "",
   });
 
-  // isPasswordMatch
   const passwordsMatch =
     formData.password.length > 0 &&
     formData.password === formData.confirmPassword;
@@ -34,7 +33,6 @@ export default function SignupPage() {
     formData.confirmPassword.length > 0 &&
     formData.password !== formData.confirmPassword;
 
-  // change_form_handler
   function changeFormHandler(e: React.ChangeEvent<HTMLInputElement>) {
     setFormData((prev) => ({
       ...prev,
@@ -42,7 +40,6 @@ export default function SignupPage() {
     }));
   }
 
-  // submitHandler
   async function sendOtp() {
     dispatch(setLoading(true));
     try {
@@ -66,154 +63,135 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_30%),linear-gradient(135deg,_#09090b_0%,_#111827_50%,_#09090b_100%)] px-4 py-12 text-white">
       <PublicOnlyRoute>
-        {/* Grid background */}
         <div
-          className="absolute inset-0 opacity-100"
+          className="absolute inset-0 opacity-60"
           style={{
             backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)
-          `,
-            backgroundSize: "30px 30px",
+              linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: "26px 26px",
           }}
         />
+        <div className="absolute -left-20 top-16 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
+        <div className="absolute -right-10 bottom-10 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl" />
 
-        <div className="relative z-10 w-full max-w-md">
-          {/* Logo + branding */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#1b1b38] border border-[#4f46e5]/40 shadow-[0_0_24px_rgba(99,102,241,0.35)] flex items-center justify-center mb-4">
-              <Zap size={28} className="text-[#818cf8]" fill="currentColor" />
+        <div className="relative z-10 mx-auto w-full max-w-md">
+          <div className="mb-8 flex flex-col items-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-400/40 bg-indigo-500/15 shadow-[0_0_30px_rgba(99,102,241,0.32)]">
+              <Zap size={28} className="text-indigo-300" fill="currentColor" />
             </div>
-            <h1 className="text-white text-3xl font-bold">Connect</h1>
-            <p className="text-[#8b8b96] text-sm mt-1">
-              end to end encrypted messaging
-            </p>
+            <h1 className="text-3xl font-black tracking-tight text-white">Connect</h1>
+            <p className="mt-2 text-sm text-slate-300">End to end encrypted messaging</p>
           </div>
 
-          {/* Card */}
-          <div className="bg-[#111113] border border-white/10 rounded-2xl p-8">
-            <h2 className="text-white text-2xl font-bold mb-6">
-              Create account
-            </h2>
+          <div className="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.8)] backdrop-blur-xl sm:p-8">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-indigo-300/80">Create account</p>
+                <h2 className="mt-2 text-2xl font-bold text-white">Join us</h2>
+              </div>
+              <div className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                New
+              </div>
+            </div>
 
-            {/* Name */}
-            <div className="mb-5">
-              <label className="block text-[#a1a1aa] text-sm mb-2">Name</label>
-              <div className="flex items-center gap-3 bg-[#18181b] border border-white/10 rounded-lg px-4 py-3 focus-within:border-[#6366f1] transition-colors">
-                <User size={18} className="text-[#71717a] shrink-0" />
+            <div className="mb-5 space-y-2">
+              <label className="block text-sm text-slate-300">Name</label>
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/90 px-4 py-3 transition focus-within:border-indigo-400/70 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                <User size={18} className="shrink-0 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Enter your name"
                   name="name"
                   value={formData.name}
                   onChange={changeFormHandler}
-                  className="flex-1 bg-transparent outline-none text-white placeholder:text-[#52525b] text-sm"
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
                 />
               </div>
             </div>
 
-            {/* Email */}
-            <div className="mb-5">
-              <label className="block text-[#a1a1aa] text-sm mb-2">Email</label>
-              <div className="flex items-center gap-3 bg-[#18181b] border border-white/10 rounded-lg px-4 py-3 focus-within:border-[#6366f1] transition-colors">
-                <Mail size={18} className="text-[#71717a] shrink-0" />
+            <div className="mb-5 space-y-2">
+              <label className="block text-sm text-slate-300">Email</label>
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/90 px-4 py-3 transition focus-within:border-indigo-400/70 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                <Mail size={18} className="shrink-0 text-slate-400" />
                 <input
                   type="email"
                   placeholder="you@example.com"
                   name="email"
                   value={formData.email}
                   onChange={changeFormHandler}
-                  className="flex-1 bg-transparent outline-none text-white placeholder:text-[#52525b] text-sm"
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
                 />
               </div>
             </div>
 
-            {/* Password */}
-            <div className="mb-5">
-              <label className="block text-[#a1a1aa] text-sm mb-2">
-                Password
-              </label>
-              <div className="flex items-center gap-3 bg-[#18181b] border border-white/10 rounded-lg px-4 py-3 focus-within:border-[#6366f1] transition-colors">
-                <Lock size={18} className="text-[#71717a] shrink-0" />
+            <div className="mb-5 space-y-2">
+              <label className="block text-sm text-slate-300">Password</label>
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/90 px-4 py-3 transition focus-within:border-indigo-400/70 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                <Lock size={18} className="shrink-0 text-slate-400" />
                 <input
                   name="password"
                   value={formData.password}
                   onChange={changeFormHandler}
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
-                  className="flex-1 bg-transparent outline-none text-white placeholder:text-[#52525b] text-sm"
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="text-[#71717a] hover:text-white transition-colors shrink-0"
+                  className="shrink-0 text-slate-400 transition hover:text-white"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <p className="text-[#71717a] text-xs mt-1.5">
-                Must be at least 8 characters
-              </p>
+              <p className="text-xs text-slate-400">Must be at least 8 characters</p>
             </div>
 
-            {/* Confirm Password */}
-            <div className="mb-6">
-              <label className="block text-[#a1a1aa] text-sm mb-2">
-                Confirm Password
-              </label>
+            <div className="mb-6 space-y-2">
+              <label className="block text-sm text-slate-300">Confirm Password</label>
               <div
-                className={`
-                flex items-center gap-3 bg-[#18181b] border rounded-lg px-4 py-3 transition-colors
-                ${
+                className={`flex items-center gap-3 rounded-xl border bg-slate-900/90 px-4 py-3 transition ${
                   passwordsMismatch
                     ? "border-red-500/60 focus-within:border-red-500"
                     : passwordsMatch
                       ? "border-emerald-500/60 focus-within:border-emerald-500"
-                      : "border-white/10 focus-within:border-[#6366f1]"
-                }
-              `}
+                      : "border-white/10 focus-within:border-indigo-400/70 focus-within:ring-2 focus-within:ring-indigo-500/20"
+                }`}
               >
-                <Lock size={18} className="text-[#71717a] shrink-0" />
+                <Lock size={18} className="shrink-0 text-slate-400" />
                 <input
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={changeFormHandler}
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Re-enter your password"
-                  className="flex-1 bg-transparent outline-none text-white placeholder:text-[#52525b] text-sm"
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
                 />
                 {formData.confirmPassword.length > 0 &&
                   (passwordsMatch ? (
-                    <Check size={18} className="text-emerald-500 shrink-0" />
+                    <Check size={18} className="shrink-0 text-emerald-400" />
                   ) : (
-                    <X size={18} className="text-red-500 shrink-0" />
+                    <X size={18} className="shrink-0 text-red-400" />
                   ))}
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  aria-label={
-                    showConfirmPassword ? "Hide password" : "Show password"
-                  }
-                  className="text-[#71717a] hover:text-white transition-colors shrink-0"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  className="shrink-0 text-slate-400 transition hover:text-white"
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {passwordsMismatch && (
-                <p className="text-red-500 text-xs mt-1.5">
-                  Passwords do not match
-                </p>
+                <p className="text-xs text-red-400">Passwords do not match</p>
               )}
             </div>
 
-            {/* Sign up button */}
             <button
               disabled={
                 !passwordsMatch ||
@@ -224,43 +202,31 @@ export default function SignupPage() {
                 loading
               }
               onClick={sendOtp}
-              className="
-              w-full py-3 rounded-lg
-              bg-[#6366f1] hover:bg-[#5457e5]
-              disabled:bg-[#6366f1]/30 disabled:cursor-not-allowed
-              text-white font-semibold text-sm
-              transition-colors cursor-pointer flex justify-center
-            "
+              className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {loading ? <Spinner className="w-6 h-6" /> : <p>Sign up</p>}
+              {loading ? <Spinner className="h-6 w-6" /> : "Sign up"}
             </button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-[#71717a] text-xs">or continue with</span>
-              <div className="flex-1 h-px bg-white/10" />
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="text-[11px] uppercase tracking-[0.18em] text-slate-500">or continue with</span>
+              <div className="h-px flex-1 bg-white/10" />
             </div>
 
-            {/* OAuth buttons */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-white/10 text-[#e4e4e7] text-sm hover:bg-white/5 transition-colors">
+            <div className="mb-6 grid grid-cols-2 gap-3">
+              <button className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10">
                 <GoogleIcon />
                 Google
               </button>
-              <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-white/10 text-[#e4e4e7] text-sm hover:bg-white/5 transition-colors">
+              <button className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10">
                 <GitHubIcon />
                 GitHub
               </button>
             </div>
 
-            {/* Sign in link */}
-            <p className="text-center text-[#a1a1aa] text-sm">
+            <p className="text-center text-sm text-slate-300">
               Already have an account?{" "}
-              <Link
-                href="/login"
-                className="text-[#818cf8] hover:text-[#a5b4fc] font-medium transition-colors"
-              >
+              <Link href="/login" className="font-semibold text-indigo-300 transition hover:text-indigo-200">
                 Sign in
               </Link>
             </p>

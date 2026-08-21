@@ -12,7 +12,6 @@ export default function MessageInput({
   setText: React.Dispatch<React.SetStateAction<string>>;
   onSend: (text: string) => void;
 }) {
-
   const handleSend = () => {
     if (!text.trim()) return;
     onSend(text.trim());
@@ -20,32 +19,38 @@ export default function MessageInput({
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-[#161717] border-t border-white/5 absolute bottom-4 right-2 left-2 rounded-xl">
-      <button aria-label="Attach" className="text-wa-text-muted-dark hover:text-white transition-colors shrink-0">
-        <Plus size={24} />
-      </button>
-
-      <div className="flex-1 flex items-center gap-2 bg-[#242626] rounded-full px-4 py-2.5">
-        <button aria-label="Emoji" className="text-wa-text-muted-dark hover:text-white transition-colors shrink-0">
-          <Smile size={20} />
+    <div className="rounded-[22px] border border-white/10 bg-slate-900/75 p-2 shadow-[0_20px_40px_rgba(15,23,42,0.55)] backdrop-blur-xl">
+      <div className="flex items-center gap-3">
+        <button aria-label="Attach" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:border-indigo-400/30 hover:bg-indigo-500/10 hover:text-white">
+          <Plus size={20} />
         </button>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          type="text"
-          placeholder="Type a message"
-          className="flex-1 bg-transparent outline-none text-wa-border placeholder:text-wa-text-muted-dark text-sm"
-        />
-      </div>
 
-      <button
-        aria-label={text.trim() ? 'Send' : 'Voice message'}
-        onClick={text.trim() ? handleSend : undefined}
-        className="text-wa-text-muted-dark hover:text-white transition-colors shrink-0"
-      >
-        {text.trim() ? <Send size={22} /> : <Mic size={22} />}
-      </button>
+        <div className="flex flex-1 items-center gap-2 rounded-full border border-white/10 bg-slate-950/80 px-3 py-2.5">
+          <button aria-label="Emoji" className="shrink-0 text-slate-300 transition hover:text-white">
+            <Smile size={18} />
+          </button>
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            type="text"
+            placeholder="Type a message"
+            className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
+          />
+        </div>
+
+        <button
+          aria-label={text.trim() ? 'Send' : 'Voice message'}
+          onClick={text.trim() ? handleSend : undefined}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition ${
+            text.trim()
+              ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25'
+              : 'border border-white/10 bg-white/5 text-slate-300 hover:text-white'
+          }`}
+        >
+          {text.trim() ? <Send size={18} /> : <Mic size={18} />}
+        </button>
+      </div>
     </div>
   );
 }

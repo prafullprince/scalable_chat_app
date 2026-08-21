@@ -4,82 +4,71 @@ import Image from "next/image";
 import { Video, Phone, Search, MoreVertical } from "lucide-react";
 import { ChatStatus } from "@/slice/chat.slice";
 
-
 export default function ChatTopBar({
   name,
   avatarUrl,
   chatUserStatus,
   userId,
-  isTyping
+  isTyping,
 }: {
   name: string | undefined;
   avatarUrl?: string;
-  chatUserStatus: Record<string, ChatStatus>; // "online", "typing...", "last seen today at ..."
+  chatUserStatus: Record<string, ChatStatus>;
   userId: string;
-  isTyping: boolean
+  isTyping: boolean;
 }) {
   const status = userId ? (chatUserStatus[userId] ?? "offline") : "offline";
+
   return (
-    <header className="flex items-center justify-between h-17.5 px-4 bg-[#161717] border-b border-white/5">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+    <header className="flex h-20 items-center justify-between border-b border-white/10 bg-slate-950/70 px-5 backdrop-blur-xl">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-white/10 bg-slate-800 shadow-lg">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt={name ? name : "Name"}
-              width={40}
-              height={40}
+              width={44}
+              height={44}
               unoptimized
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-wa-accent flex items-center justify-center text-white text-sm font-medium">
-              {name && name.charAt(0).toUpperCase()}
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white">
+              {name ? name.charAt(0).toUpperCase() : "U"}
             </div>
           )}
+          <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-400" />
         </div>
+
         <div className="min-w-0">
-          <h2 className="text-wa-border font-medium text-base truncate">
-            {name}
-          </h2>
-          {status && (
-            <p className="text-wa-text-muted text-xs truncate">
-              {status === "online" && !isTyping && (
-                <span className="text-green-400 text-sm" >online</span>
-              )}
-              {
-                status === "online" && isTyping && <span className="text-green-400 text-sm">typing....</span>
-              }
-            </p>
-          )}
+          <h2 className="truncate text-base font-semibold text-white">{name}</h2>
+          <p className="truncate text-xs text-slate-400">
+            {status === "online" && !isTyping && (
+              <span className="text-emerald-400">online</span>
+            )}
+            {status === "online" && isTyping && (
+              <span className="text-amber-300">typing...</span>
+            )}
+            {status !== "online" && <span>offline</span>}
+          </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-5 text-wa-text-muted-dark shrink-0">
-        <button
-          aria-label="Video call"
-          className="hover:text-white transition-colors"
-        >
-          <Video size={22} />
-        </button>
-        <button
-          aria-label="Voice call"
-          className="hover:text-white transition-colors"
-        >
-          <Phone size={20} />
-        </button>
-        <button
-          aria-label="Search in chat"
-          className="hover:text-white transition-colors"
-        >
-          <Search size={20} />
-        </button>
-        <button
-          aria-label="More options"
-          className="hover:text-white transition-colors"
-        >
-          <MoreVertical size={20} />
-        </button>
+      <div className="flex shrink-0 items-center gap-3 text-slate-300">
+        {[
+          { aria: "Video call", icon: Video },
+          { aria: "Voice call", icon: Phone },
+          { aria: "Search in chat", icon: Search },
+          { aria: "More options", icon: MoreVertical },
+        ].map(({ aria, icon: Icon }) => (
+          <button
+            key={aria}
+            aria-label={aria}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:border-indigo-400/30 hover:bg-indigo-500/10 hover:text-white"
+          >
+            <Icon size={18} />
+          </button>
+        ))}
       </div>
     </header>
   );

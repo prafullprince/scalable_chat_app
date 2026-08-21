@@ -16,18 +16,27 @@ const buttons: IButton[] = [
 
 const Buttons = () => {
   const [selectedButton, setSelectedButtons] = useState<IButton>(buttons[0]);
+
   return (
-    <div className="mt-1 px-2">
-      <div className="flex items-center gap-2">
-        {buttons.map((button: IButton) => (
-          <button
-            key={button.id}
-            className={`border rounded-4xl px-3 py-1 hover:cursor-pointer text-sm font-medium ${selectedButton === button ? "text-white border-wa-green bg-wa-bubble-out-dark" : "text-white/50 border-wa-bubble-in-dark"}`}
-            onClick={() => setSelectedButtons(button)}
-          >
-            {button.text}
-          </button>
-        ))}
+    <div className="px-1">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        {buttons.map((button: IButton) => {
+          const isSelected = selectedButton.id === button.id;
+
+          return (
+            <button
+              key={button.id}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide transition-all ${
+                isSelected
+                  ? "border-indigo-400/40 bg-gradient-to-r from-indigo-500/20 to-violet-500/15 text-white shadow-[0_0_18px_rgba(99,102,241,0.18)]"
+                  : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
+              }`}
+              onClick={() => setSelectedButtons(button)}
+            >
+              {button.text}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

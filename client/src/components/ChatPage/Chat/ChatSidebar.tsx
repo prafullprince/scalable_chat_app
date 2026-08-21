@@ -6,27 +6,30 @@ import CreateChat from "../Sidebar/CreateChat";
 
 const ChatSidebar = () => {
   return (
-    <div className="min-h-screen flex flex-col gap-2 bg-wa-sidebar px-3 pt-4 min-w-sm border-l border-r border-white/10">
-      {/* topbar */}
-      <div className="flex items-center justify-between mb-2">
-        {/* left */}
-        <h1 className="text-wa-bg font-extrabold text-2xl">WhatsApp</h1>
+    <div className="flex h-full w-full flex-col gap-3 overflow-hidden bg-slate-950/80 px-3 pb-4 pt-4 shadow-[inset_-1px_0_0_rgba(255,255,255,0.06)]">
+      <div className="mb-1 flex shrink-0 items-center justify-between px-1">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-indigo-300/80">Messages</p>
+          <h1 className="text-2xl font-black tracking-tight text-white">Connect</h1>
+        </div>
 
-        {/* right */}
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-2">
           <CreateChat />
-          <BsThreeDotsVertical className="text-wa-bg text-2xl font-semibold" />
+          <button className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10">
+            <BsThreeDotsVertical className="text-lg" />
+          </button>
         </div>
       </div>
 
-      {/* search_bar */}
-      <SearchBar />
-
-      {/* buttons */}
-      <Buttons />
-
-      {/* chats */}
-      <Chats />
+      <div className="shrink-0">
+        <SearchBar />
+      </div>
+      <div className="shrink-0">
+        <Buttons />
+      </div>
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <Chats />
+      </div>
     </div>
   );
 };

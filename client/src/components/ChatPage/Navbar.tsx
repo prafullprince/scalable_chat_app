@@ -25,69 +25,60 @@ export default function NavRail({ userAvatarUrl }: { userAvatarUrl?: string }) {
   const [active, setActive] = useState("chats");
 
   return (
-    <nav className="flex flex-col items-center justify-between w-16 min-h-screen bg-[#1d1f1f] py-4">
-      {/* Top nav icons */}
+    <nav className="flex w-20 min-h-screen flex-col items-center justify-between bg-slate-950/80 px-2 py-4 shadow-[inset_-1px_0_0_rgba(255,255,255,0.08)]">
       <div className="flex flex-col items-center gap-2">
         {NAV_ITEMS.map(({ id, icon: Icon, label }) => {
           const isActive = active === id;
+
           return (
             <button
               key={id}
               onClick={() => setActive(id)}
               aria-label={label}
-              className={`
-                flex items-center justify-center
-                w-11 h-11 rounded-full
-                transition-colors
-                hover:cursor-pointer
-                ${
-                  isActive
-                    ? "bg-[#fafafa] text-[#1d1f1f]"
-                    : "text-wa-text-muted hover:bg-white/5"
-                }
-              `}
+              className={`flex h-11 w-11 items-center justify-center rounded-2xl border transition-all duration-200 ${
+                isActive
+                  ? "border-indigo-400/30 bg-gradient-to-br from-indigo-500/25 to-violet-500/10 text-white shadow-[0_0_18px_rgba(99,102,241,0.18)]"
+                  : "border-transparent bg-transparent text-slate-400 hover:border-white/10 hover:bg-white/5 hover:text-white"
+              }`}
             >
-              <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+              <Icon size={20} strokeWidth={isActive ? 2.4 : 2} />
             </button>
           );
         })}
 
-        {/* Divider */}
-        <div className="w-8 h-px bg-white/10 my-2" />
+        <div className="my-2 h-px w-8 bg-white/10" />
 
-        {/* Meta AI */}
         <button
           aria-label="Meta AI"
-          className="flex items-center justify-center w-11 h-11 rounded-full hover:bg-white/5 transition-colors"
+          className="flex h-11 w-11 items-center justify-center rounded-2xl border border-violet-500/20 bg-violet-500/10 text-violet-300 transition hover:border-violet-400/40 hover:bg-violet-500/15"
         >
-          <Sparkles size={22} className="text-[#a17fff]" />
+          <Sparkles size={20} />
         </button>
       </div>
 
-      {/* Bottom: media/gallery + profile avatar */}
       <div className="flex flex-col items-center gap-4">
         <button
           aria-label="Media gallery"
-          className="flex items-center justify-center w-11 h-11 rounded-full text-wa-text-muted-dark hover:bg-white/5 transition-colors"
+          className="flex h-11 w-11 items-center justify-center rounded-2xl border border-transparent text-slate-400 transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         >
-          <Images size={22} />
+          <Images size={20} />
         </button>
 
         <button
           aria-label="Profile"
-          className="w-9 h-9 rounded-full overflow-hidden border border-white/10"
+          className="h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-gradient-to-br from-slate-700 to-slate-900 shadow-lg"
         >
           {userAvatarUrl ? (
             <Image
               src={userAvatarUrl}
               alt="Your profile"
-              width={36}
-              height={36}
+              width={40}
+              height={40}
               unoptimized
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-wa-accent flex items-center justify-center text-white text-xs font-medium">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-500 text-xs font-semibold text-white">
               U
             </div>
           )}

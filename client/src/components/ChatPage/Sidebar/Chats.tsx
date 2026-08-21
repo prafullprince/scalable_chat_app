@@ -12,21 +12,15 @@ import { HiOutlineStatusOffline, HiOutlineStatusOnline } from "react-icons/hi";
 import { toast } from "sonner";
 
 const Chats = () => {
-  // hook
   const user = useAppSelector((state) => state.auth.user);
   const chatUserStatus = useAppSelector((state) => state.chat.chatUserStatus);
-  console.log("chatUserSttaus: ", chatUserStatus);
   const refresh_chat = useAppSelector((state) => state.chat.refresh_chat);
-  // console.log(user)
   const { socketRef, isConnected } = useWebSocket();
   const dispatch = useAppDispatch();
 
-  // state
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState<IChat[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  // console.log("chats: ", chats);
 
-  // chat_api_call
   useEffect(() => {
     const fetchChats = async () => {
       setLoading(true);
@@ -45,7 +39,6 @@ const Chats = () => {
     fetchChats();
   }, [refresh_chat]);
 
-  // Effect 1 — listen for status changes
   useEffect(() => {
     if (!isConnected || !socketRef?.current) return;
 
@@ -55,7 +48,6 @@ const Chats = () => {
       const data = JSON.parse(e.data);
 
       if (data.type === "online_receiver") {
-        console.log("online_receiver: ", data);
         dispatch(
           setChatUserStatus({
             userId: data.userId,
@@ -72,7 +64,6 @@ const Chats = () => {
     };
   }, [isConnected, socketRef, dispatch]);
 
-  // Effect 2 — ask about each chat user's status -> online event
   useEffect(() => {
     if (!chats.length || !isConnected || !socketRef?.current) {
       return;
@@ -98,60 +89,79 @@ const Chats = () => {
 
   if (loading) {
     return (
-      <div className="mt-4 w-full h-full flex justify-center items-center">
-        <Spinner className="w-10 h-10 text-yellow-600" />
+      <div className="mt-4 flex h-full w-full items-center justify-center">
+        <Spinner className="h-10 w-10 text-indigo-400" />
+      </div>
+    );
+  }
+
+  if (!chats.length) {
+    return (
+      <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-slate-900/40 p-4 text-center text-sm text-slate-400">
+        No conversations yet
       </div>
     );
   }
 
   return (
-    <div className="mt-4 overflow-y-auto scrollbar-none">
-      <div className="flex flex-col gap-1">
+    <div className="mt-4 h-full overflow-y-auto scrollbar-none">
+      <div className="flex flex-col gap-2 pb-2">
         {chats?.map((chat: IChat) => {
           const otherUser = chat?.participants?.find(
             (participant) => participant._id !== user?.user_id,
           );
 
           const status = otherUser?._id
-            ? (chatUserStatus[otherUser?._id] ?? "offline")
+            ? (chatUserStatus[otherUser._id] ?? "offline")
             : "offline";
+
+          const isOnline = status === "online";
+          const lastMessageText = chat?.lastMessage?.message ?? "No messages yet";
 
           return (
             <Link
               href={`/chat/${chat?._id}/user/${otherUser?._id}`}
               key={chat?._id}
+              className="group"
             >
-              <div className="w-full flex items-center gap-3 hover:bg-[#84838345] px-3 py-3 rounded-lg">
-                {/* dp */}
-                <Image
-                  src={otherUser?.avatarUrl || "/globe.svg"}
-                  alt="user_dp"
-                  priority
-                  unoptimized
-                  width={50}
-                  height={50}
-                  className="border rounded-full min-w-10 min-h-10 ring ring-white/20"
-                />
+              <div className="flex w-full items-center gap-3 rounded-2xl border border-transparent bg-slate-900/40 px-3 py-3 transition hover:border-indigo-400/20 hover:bg-slate-800/80 hover:shadow-[0_12px_30px_rgba(15,23,42,0.18)]">
+                <div className="relative shrink-0">
+                  <Image
+                    src={otherUser?.avatarUrl || "/globe.svg"}
+                    alt="user_dp"
+                    priority
+                    unoptimized
+                    width={52}
+                    height={52}
+                    className="h-12 w-12 rounded-full border border-white/10 object-cover shadow-md"
+                  />
+                  {isOnline && (
+                    <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-slate-900 bg-emerald-400" />
+                  )}
+                </div>
 
-                {/* info */}
-                <div className="flex flex-col gap-1 w-full">
-                  <div className="flex items-center justify-between">
-                    <p className="text-white/90">{otherUser?.name}</p>
-                    <p className="text-white/50 font-medium text-sm">
-                      {status === "online" && (
-                        <HiOutlineStatusOnline className="text-green-400 text-2xl" />
-                      )}
-                      {status === "offline" && <HiOutlineStatusOffline className="text-lg" />}
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center justify-between gap-3">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {otherUser?.name}
                     </p>
-                  </div>
-                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      {chat?.lastMessage?.isSeen}
-                      <p className="text-white/50 text-xs font-medium">
-                        {status === "online" ? <span className="text-sm text-green-400">online</span> : ""}
-                        {chat?.lastMessage?.message}
-                      </p>
+                      {isOnline ? (
+                        <HiOutlineStatusOnline className="text-xl text-emerald-400" />
+                      ) : (
+                        <HiOutlineStatusOffline className="text-lg text-slate-500" />
+                      )}
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-xs text-slate-400">
+                      {isOnline ? <span className="mr-1 text-[11px] text-emerald-400">online</span> : ""}
+                      {lastMessageText}
+                    </p>
+                    <span className="rounded-full bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
+                      {chat?.lastMessage?.createdAt ? "Now" : "New"}
+                    </span>
                   </div>
                 </div>
               </div>

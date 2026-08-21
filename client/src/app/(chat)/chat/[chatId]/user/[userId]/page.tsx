@@ -225,7 +225,7 @@ export default function ChatPage() {
   }, [messsages]);
 
   return (
-    <div className="flex flex-col min-h-screen flex-1 bg-wa-bg-dark relative">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-transparent">
       <ProtectedLayout>
         {!userLoading ? (
           <ChatTopBar
@@ -235,15 +235,14 @@ export default function ChatPage() {
             isTyping={isTyping}
           />
         ) : (
-          <div className="w-full h-17.5 flex justify-center items-center px-4 bg-[#161717] border-b border-white/5">
-            <Spinner className="w-6 h-6 text-yellow-600" />
+          <div className="flex h-20 w-full items-center justify-center border-b border-white/5 bg-[#161717] px-4">
+            <Spinner className="h-6 w-6 text-yellow-600" />
           </div>
         )}
 
-        <div className="flex-1 relative overflow-hidden">
-          {/* Grid background */}
+        <div className="relative min-h-0 flex-1 overflow-hidden">
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="pointer-events-none absolute inset-0"
             style={{
               backgroundImage: `
             linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -252,7 +251,8 @@ export default function ChatPage() {
               backgroundSize: "30px 30px",
             }}
           />
-          <div className="relative h-full overflow-y-auto scrollbar-hide px-4 sm:px-20 pt-4 pb-22">
+
+          <div className="relative h-full min-h-0 overflow-y-auto px-4 pt-4 sm:px-20">
             {messsages.map((msg) => (
               <div key={msg?._id}>
                 {msg.sender === senderId ? (
@@ -271,41 +271,41 @@ export default function ChatPage() {
                   />
                 )}
 
-                {/* Always stay at the bottom */}
-                <div ref={bottomRef} className="" />
+                <div ref={bottomRef} className="h-1" />
               </div>
             ))}
           </div>
         </div>
 
-        <MessageInput
-          text={text}
-          setText={setText}
-          onSend={(text) => {
-            // send message
-            const socket = socketRef.current;
-            if (!socket) {
-              toast.error("Socket Connection failed. Refresh page");
-              return;
-            }
+        <div className="shrink-0 border-t border-white/10 bg-slate-950/60 px-2 pb-2 pt-2 backdrop-blur-xl">
+          <MessageInput
+            text={text}
+            setText={setText}
+            onSend={(text) => {
+              const socket = socketRef.current;
+              if (!socket) {
+                toast.error("Socket Connection failed. Refresh page");
+                return;
+              }
 
-            if (socket.readyState === WebSocket.OPEN) {
-              socket.send(
-                JSON.stringify({
-                  type: "chat",
-                  text: text,
-                  chatId: chatId,
-                  sender: senderId,
-                  receiver: userId,
-                  messageType: "text",
-                  chatType: "private",
-                }),
-              );
-            } else {
-              toast.error("Client is closed");
-            }
-          }}
-        />
+              if (socket.readyState === WebSocket.OPEN) {
+                socket.send(
+                  JSON.stringify({
+                    type: "chat",
+                    text: text,
+                    chatId: chatId,
+                    sender: senderId,
+                    receiver: userId,
+                    messageType: "text",
+                    chatType: "private",
+                  }),
+                );
+              } else {
+                toast.error("Client is closed");
+              }
+            }}
+          />
+        </div>
       </ProtectedLayout>
     </div>
   );

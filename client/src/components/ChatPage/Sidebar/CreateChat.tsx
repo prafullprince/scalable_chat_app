@@ -13,14 +13,10 @@ const modals: IModal[] = [
 ];
 
 const CreateChat = () => {
-  // hook
   const dispatch = useAppDispatch();
-  const selectedChat = useAppSelector((state)=>state.chat.selected_chat);
-
-  // state
+  const selectedChat = useAppSelector((state) => state.chat.selected_chat);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // handleSelectChat
   const handleSelectChat = (chat: IModal) => {
     dispatch(setSelectedChat(chat));
     setIsMenuOpen(false);
@@ -28,36 +24,38 @@ const CreateChat = () => {
 
   return (
     <div className="relative">
-      {/* Create chat button */}
       <button
         type="button"
         onClick={() => setIsMenuOpen((prev) => !prev)}
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:border-indigo-400/40 hover:bg-indigo-500/10 hover:text-white"
+        aria-label="Create chat"
       >
-        <MdOutlineCreateNewFolder className="text-wa-bg text-3xl cursor-pointer" />
+        <MdOutlineCreateNewFolder className="cursor-pointer text-xl" />
       </button>
 
-      {/* Dropdown */}
       {isMenuOpen && (
-        <div className="absolute top-8 z-10 rounded-lg bg-wa-green-500 p-2 text-xs font-medium text-wa-panel">
+        <div className="absolute left-0 top-12 z-20 w-48 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/95 p-2 shadow-[0_25px_60px_rgba(15,23,42,0.6)] backdrop-blur-xl">
+          <div className="mb-2 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-400">
+            Start chat
+          </div>
           {modals.map((chat) => (
             <button
               type="button"
               key={chat.id}
               onClick={() => handleSelectChat(chat)}
-              className="block rounded-lg px-3 py-1.5 transition-all duration-300 hover:bg-white/80 hover:text-black cursor-pointer"
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-200 transition hover:bg-indigo-500/10 hover:text-white"
             >
-              {chat.name}
+              <span>{chat.name.replace("_", " ")}</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-300">
+                {chat.id === 1 ? "1:1" : "Group"}
+              </span>
             </button>
           ))}
         </div>
       )}
 
-      {/* Actual modal */}
       {selectedChat && (
-        <ChatModal
-          chat={selectedChat}
-          onClose={() => setSelectedChat(null)}
-        />
+        <ChatModal chat={selectedChat} onClose={() => dispatch(setSelectedChat(null))} />
       )}
     </div>
   );
@@ -73,34 +71,29 @@ interface ChatModalProps {
 function ChatModal({ chat, onClose }: ChatModalProps) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-[#131313b8] p-6 shadow-xl"
+        className="w-full max-w-md rounded-[28px] border border-white/10 bg-slate-950/90 p-5 shadow-[0_30px_80px_rgba(15,23,42,0.75)] backdrop-blur-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-wa-bg">
-            {chat.name}
-          </h2>
+        <div className="mb-5 flex items-start justify-between">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-indigo-300/80">Create</p>
+            <h2 className="mt-2 text-2xl font-bold text-white">{chat.name.replace("_", " ")}</h2>
+          </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-2 py-1 font-semibold text-wa-bg cursor-pointer transition hover:bg-neutral-100 hover:text-neutral-900"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             ✕
           </button>
         </div>
 
-        {/* Body */}
-        <div className="">
-          {
-            chat.name === "Private_Chat" && <Create_Private_Chat onClose={onClose} />
-          }
-        </div>
+        <div>{chat.name === "Private_Chat" && <Create_Private_Chat onClose={onClose} />}</div>
       </div>
     </div>
   );

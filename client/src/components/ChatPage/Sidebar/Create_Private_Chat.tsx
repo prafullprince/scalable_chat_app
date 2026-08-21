@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import { useAppDispatch } from "@/lib/redux/hooks";
 import Spinner from "@/loading/Spinner";
 import { ChatService } from "@/services/chat.service";
@@ -10,65 +11,59 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const Create_Private_Chat = ({ onClose }: { onClose: () => void }) => {
-  // hook
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // state
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // create_chat_api_call
   async function submitHandler() {
     setLoading(true);
     try {
-        const res: ICreatePrivateChatRes = await ChatService.create_private_chat({ toUserEmail: email, chatType: "private" });
-        if(!res) {
-            return;
-        }
-        toast.success(res.message);
-        dispatch(setRefreshChat(true));
-        dispatch(setSelectedChat(null));
-
-        // push to that chat page
-        router.push(`/chat/${res.chatId}/user/${res.otherUserId}`);
+      const res: ICreatePrivateChatRes = await ChatService.create_private_chat({
+        toUserEmail: email,
+        chatType: "private",
+      });
+      if (!res) {
+        return;
+      }
+      toast.success(res.message);
+      dispatch(setRefreshChat(true));
+      dispatch(setSelectedChat(null));
+      router.push(`/chat/${res.chatId}/user/${res.otherUserId}`);
     } catch (error) {
-        console.log(error);
-        if(error instanceof Error) {
-            toast.error(error.message);
-        }
+      console.log(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   }
 
   return (
-    <div className="">
+    <div>
       <div className="mb-5">
-        <label className="block text-[#e0e0e8] text-sm mb-2 font-medium">
-          Email
-        </label>
-        <div className="flex items-center gap-3 bg-[#18181b] border border-white/10 rounded-lg px-4 py-3 focus-within:border-[#6366f1] transition-colors">
-          <Mail size={18} className="text-[#71717a] shrink-0" />
+        <label className="mb-2 block text-sm font-medium text-slate-300">Email address</label>
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 transition focus-within:border-indigo-400/70 focus-within:ring-2 focus-within:ring-indigo-500/15">
+          <Mail size={18} className="shrink-0 text-slate-400" />
           <input
             type="text"
             placeholder="you@example.com"
             name="email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-            className="flex-1 bg-transparent outline-none text-white placeholder:text-[#52525b] text-sm"
+            onChange={(e) => setEmail(e.target.value)}
+            className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
           />
         </div>
+        <p className="mt-2 text-xs text-slate-400">Start a private conversation with someone by email.</p>
       </div>
 
-      {/* Footer */}
       <div className="mt-6 flex justify-end gap-2">
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg px-4 py-2 text-neutral-200 transition hover:bg-neutral-800 cursor-pointer"
+          className="cursor-pointer rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
         >
           Cancel
         </button>
@@ -76,10 +71,10 @@ const Create_Private_Chat = ({ onClose }: { onClose: () => void }) => {
         <button
           type="button"
           onClick={submitHandler}
-          disabled={loading}
-          className="rounded-lg bg-blue-600 cursor-pointer px-4 py-2 text-white transition hover:bg-blue-700 flex justify-center items-center"
+          disabled={loading || !email.trim()}
+          className="flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {loading ? <Spinner className="w-6 h-6" /> : <p>Confirm</p>}
+          {loading ? <Spinner className="h-6 w-6" /> : "Create chat"}
         </button>
       </div>
     </div>
