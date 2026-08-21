@@ -2,6 +2,7 @@ interface ILastMessage {
     message: string;
     date: string;
     isSeen: boolean;
+    createdAt: string;
 }
 
 export interface IParticipant {
