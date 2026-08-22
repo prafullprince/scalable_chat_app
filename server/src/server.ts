@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["https://scalable-chat-app-eight.vercel.app", "https://connect.visualcode.site"],
   credentials: true
 }));
 app.use(express.json());
